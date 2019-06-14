@@ -1,3 +1,6 @@
+#include <boost/algorithm/string.hpp>
+using namespace boost;
+
 #include "location.h"
 #include "weather.h"
 #include <fmt/core.h>
@@ -119,17 +122,26 @@ class ExtClient {
             auto chan = e.args()[0];
             auto name = cer.name();
             auto q = args["location"];
-            std::cout << "Cmd: " << cer.name() << " Chan: " << chan << " Args: " << args["location"] << endl;
+            std::cout << "Cmd: " << cer.name() << " Chan: " << chan << " Args: " << q << endl;
             if (name == "wz" || name == "weather") {
-                string units = GetUnits(args["location"]);
-                auto loc = Location(args["location"]);
+                string units = GetUnits(q);
+                std::cout << "Units: " << units << "Location: " << q << std::endl;
+                if(q == "") {
+                    putchan(chan, "Give a location");
+                    continue;
+                }
+                auto loc = Location(q);
                 if (loc.error != "") {
                     putchan(chan, loc.error);
                     continue;
                 }
                 auto w = Weather(DARKSKY_KEY);
                 w.Lookup(loc, units);
-                putchan(chan, w.GetIRC());
+                if(w.error != "") {
+                    putchan(chan, w.error);
+                } else {
+                    putchan(chan, w.GetIRC());
+                }
             }
             if (name == "snek") {
                 putchan(chan, "HSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
@@ -149,7 +161,8 @@ string File2String(string filename) {
     std::ifstream file(filename);
     std::stringstream buffer;
     buffer << file.rdbuf();
-    return buffer.str();
+    string out = buffer.str();
+    return trim_right_copy(out);
 }
 
 int main() {
