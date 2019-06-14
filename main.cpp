@@ -97,15 +97,22 @@ class ExtClient {
     
     string GetUnits(string &q) {
         string units = "auto";
-        string subby = q.substr(0, q.find(" "));
-        if (subby.substr(0, 2) == "--") {
-            q = q.substr(q.find(" ") + 1, string::npos);
-            units = subby.substr(2, string::npos);
+        string out = "";
+        vector<string> words;
+        split(words, q, is_space());
+        for(string word : words) {
+            if (word.substr(0, 2) == "--") {
+                string unit = word.substr(2, string::npos);
+                if (Weather::ValidUnits(units)) {
+                    units = unit;
+                    continue;
+                }
+            }
+            out.append(word);
         }
-        if (Weather::ValidUnits(units)) {
-            return units;
-        }
-        return "auto";
+        trim(out);
+        q = out;
+        return units;
     }
 
     void listenCmds() {
