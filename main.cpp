@@ -169,7 +169,8 @@ string File2String(string filename) {
     std::stringstream buffer;
     buffer << file.rdbuf();
     string out = buffer.str();
-    return trim_right_copy(out);
+    trim_right(out);
+    return out;
 }
 
 int main() {
