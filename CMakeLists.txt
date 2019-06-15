@@ -23,7 +23,7 @@ include_directories(${gtest_SOURCE_DIR}/include/
 enable_testing()
 SET(CMAKE_CXX_FLAGS_DEBUG "-g -Wno-unused-parameter")
 #dont include FetchURL.cpp since we mock it
-add_executable(weather_test weather.cpp location.cpp GetTime.cpp weather_test.cpp)
+add_executable(weather_test weather.cpp location.cpp GetTime.cpp weather_test.cpp test/FileReaderTest.cpp)
 target_link_libraries(weather_test gtest cpprestsdk::cpprest fmt)
 add_test(NAME weather COMMAND weather_test)
 file(COPY ${CMAKE_SOURCE_DIR}/barf.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

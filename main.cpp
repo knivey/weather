@@ -3,6 +3,8 @@ using namespace boost;
 
 #include "location.h"
 #include "weather.h"
+#include "FileReader.hpp"
+
 #include <fmt/core.h>
 #include <iostream>
 #include <string>
@@ -164,22 +166,23 @@ class ExtClient {
     }
 };
 
-string File2String(string filename) {
-    std::ifstream file(filename);
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    string out = buffer.str();
-    trim_right(out);
-    return out;
-}
-
 int main() {
-    DARKSKY_KEY = File2String("darksky_key");
-    
     grpc::SslCredentialsOptions credOpts;
-    credOpts.pem_root_certs = File2String("extra.crt");
-    credOpts.pem_private_key = File2String("knivey.key");
-    credOpts.pem_cert_chain = File2String("knivey.crt");
+
+    try {
+        DARKSKY_KEY = FileReader("darksky_key").data();
+        credOpts.pem_root_certs = FileReader("extra.crt").data();
+        credOpts.pem_private_key = FileReader("knivey.key").data();
+        credOpts.pem_cert_chain = FileReader("knivey.crt").data();
+    } catch (const std::runtime_error& err) {
+        std::cerr << err.what() << '\n';
+        exit(-1);
+    }
+
+    trim_right(DARKSKY_KEY);
+    trim_right(credOpts.pem_root_certs);
+    trim_right(credOpts.pem_private_key);
+    trim_right(credOpts.pem_cert_chain);
 
     // Create a default SSL ChannelCredentials object.
     auto channel_creds = grpc::SslCredentials(credOpts);
