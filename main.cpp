@@ -1,20 +1,8 @@
-#include <boost/algorithm/string.hpp>
-using namespace boost;
-
+#include "FileReader.hpp"
 #include "location.h"
 #include "weather.h"
-#include "FileReader.hpp"
 
 #include <fmt/core.h>
-#include <iostream>
-#include <string>
-
-#include <fstream>
-#include <memory>
-#include <sstream>
-#include <streambuf>
-#include <unistd.h>
-#include <vector>
 
 #include "grpc/ultimateq.grpc.pb.h"
 #include "grpc/ultimateq.pb.h"
@@ -24,6 +12,21 @@ using namespace boost;
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
+
+#include <boost/algorithm/string.hpp>
+
+#include <unistd.h>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <memory>
+#include <sstream>
+#include <streambuf>
+#include <vector>
+#include <algorithm>
+#include <chrono>
+#include <thread>
+
 using grpc::Channel;
 using grpc::ChannelArguments;
 using grpc::ClientContext;
@@ -31,45 +34,47 @@ using grpc::ClientReader;
 using grpc::ClientReaderWriter;
 using grpc::ClientWriter;
 using grpc::Status;
+
 using namespace api;
+using namespace std::literals;
 
-using namespace std;
+constexpr std::string_view EXTNAME = "weather";
+constexpr std::string_view NETNAME = "zkpq";
 
-const char *EXTNAME = "weather";
-const char *NETNAME = "zkpq";
-
-static string DARKSKY_KEY;
+static std::string DARKSKY_KEY;
 
 class ExtClient {
-  public:
+public:
     ExtClient(std::shared_ptr<Channel> channel) : stub(Ext::NewStub(channel)) {
         ;
     }
     std::unique_ptr<Ext::Stub> stub;
 
-    void registerPubCmd(string name, string desc, vector<string> args) {
-        Cmd *cmd = new Cmd();
-        cmd->set_ext(EXTNAME);
+    void registerPubCmd(std::string name, std::string desc, std::vector<std::string> args) {
+        cmds_.emplace_back(std::make_unique<Cmd>());
+
+        auto cmd = cmds_.back().get();
+        cmd->set_ext(EXTNAME.data());
         cmd->set_name(name);
         cmd->set_desc(desc);
         cmd->set_kind(Cmd::AnyKind);
         cmd->set_scope(Cmd::Public);
-        for (auto &a : args) {
-            auto Args = cmd->add_args();
-            *Args = a;
-        }
+        std::for_each(args.begin(), args.end(),
+            [&cmd] (const auto& arg) {
+                *cmd->add_args() = arg;
+            }
+        );
 
-        RegisterCmdRequest cmdr;
-        cmdr.set_ext(EXTNAME);
-        cmdr.set_allocated_cmd(cmd);
+        RegisterCmdRequest cmd_request;
+        cmd_request.set_ext(EXTNAME.data());
+        cmd_request.set_allocated_cmd(cmd);
 
         ClientContext context;
         RegisterResponse RegResp;
-        Status status = stub->RegisterCmd(&context, cmdr, &RegResp);
-        if (!status.ok()) {
+        if (auto status = stub->RegisterCmd(&context, cmd_request, &RegResp); !status.ok()) {
             std::cout << "RegisterCmd rpc failed." << std::endl;
-            cout << status.error_code() << endl;
-            cout << status.error_message() << endl;
+            std::cout << status.error_code() << std::endl;
+            std::cout << status.error_message() << std::endl;
         }
     }
 
@@ -79,32 +84,30 @@ class ExtClient {
         registerPubCmd("snek", "hssss", {});
     }
 
-    void putchan(string chan, string msg) {
-        string rawmsg = fmt::format("PRIVMSG {} :{}", chan, msg);
-        cout << "<< " << rawmsg << endl;
+    void putchan(std::string_view chan, std::string msg) {
+        std::string rawmsg = fmt::format("PRIVMSG {} :{}", chan, msg);
+        std::cout << "<< " << rawmsg << std::endl;
         WriteRequest wr;
-        wr.set_ext(EXTNAME);
-        wr.set_net(NETNAME);
+        wr.set_ext(EXTNAME.data());
+        wr.set_net(NETNAME.data());
         wr.set_msg(rawmsg);
         ClientContext context;
         Empty resp;
-        Status status = stub->Write(&context, wr, &resp);
-        if (!status.ok()) {
+        if (auto status = stub->Write(&context, wr, &resp); !status.ok()) {
             std::cout << "Write rpc failed." << std::endl;
-            cout << status.error_code() << endl;
-            cout << status.error_message() << endl;
-            return;
+            std::cout << status.error_code() << std::endl;
+            std::cout << status.error_message() << std::endl;
         }
     }
     
-    string GetUnits(string &q) {
-        string units = "auto";
-        string out = "";
-        vector<string> words;
-        split(words, q, is_space());
-        for(string word : words) {
+    std::string GetUnits(std::string &q) {
+        std::string units = "auto";
+        std::string out = "";
+        std::vector<std::string> words;
+        boost::split(words, q, boost::is_space());
+        for(std::string word : words) {
             if (word.substr(0, 2) == "--") {
-                string unit = word.substr(2, string::npos);
+                std::string unit = word.substr(2, std::string::npos);
                 if (Weather::ValidUnits(units)) {
                     units = unit;
                     continue;
@@ -112,14 +115,14 @@ class ExtClient {
             }
             out.append(word);
         }
-        trim(out);
+        boost::trim(out);
         q = out;
         return units;
     }
 
     void listenCmds() {
         SubscriptionRequest sr;
-        sr.set_ext(EXTNAME);
+        sr.set_ext(EXTNAME.data());
 
         CmdEventResponse cer;
         ClientContext context;
@@ -131,9 +134,9 @@ class ExtClient {
             auto chan = e.args()[0];
             auto name = cer.name();
             auto q = args["location"];
-            std::cout << "Cmd: " << cer.name() << " Chan: " << chan << " Args: " << q << endl;
+            std::cout << "Cmd: " << cer.name() << " Chan: " << chan << " Args: " << q << std::endl;
             if (name == "wz" || name == "weather") {
-                string units = GetUnits(q);
+                std::string units = GetUnits(q);
                 std::cout << "Units: " << units << "Location: " << q << std::endl;
                 if(q == "") {
                     putchan(chan, "Give a location");
@@ -156,14 +159,15 @@ class ExtClient {
                 putchan(chan, "HSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
             }
         }
-        Status status = reader->Finish();
-        if (!status.ok()) {
+
+        if (auto status = reader->Finish(); !status.ok()) {
             std::cout << "reader->Finish rpc failed." << std::endl;
-            cout << status.error_code() << endl;
-            cout << status.error_message() << endl;
-            return;
+            std::cout << status.error_code() << std::endl;
+            std::cout << status.error_message() << std::endl;
         }
     }
+private:
+    std::vector<std::unique_ptr<Cmd>> cmds_;
 };
 
 int main() {
@@ -179,10 +183,10 @@ int main() {
         exit(-1);
     }
 
-    trim_right(DARKSKY_KEY);
-    trim_right(credOpts.pem_root_certs);
-    trim_right(credOpts.pem_private_key);
-    trim_right(credOpts.pem_cert_chain);
+    boost::trim_right(DARKSKY_KEY);
+    boost::trim_right(credOpts.pem_root_certs);
+    boost::trim_right(credOpts.pem_private_key);
+    boost::trim_right(credOpts.pem_cert_chain);
 
     // Create a default SSL ChannelCredentials object.
     auto channel_creds = grpc::SslCredentials(credOpts);
@@ -196,11 +200,11 @@ int main() {
     // Create a channel using the credentials created in the previous step.
     while (1) {
         auto channel = grpc::CreateCustomChannel("ext.bitforge.ca:5001", channel_creds, cargs);
-        auto client = new ExtClient(channel);
+        auto client = std::make_unique<ExtClient>(channel);
         // client->putchan("#bots", "testing");
         client->registerCmds();
         client->listenCmds();
-        sleep(140);
+        std::this_thread::sleep_for(140s);
     }
     return 0;
 }
