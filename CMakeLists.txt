@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 project(weather)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wno-unused-parameter")
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 #ubuntu puts files in a stupid place
 set(cpprestsdk_DIR /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/)
 find_package(cpprestsdk REQUIRED NAMES cpprestsdk cpprest)
@@ -20,10 +21,9 @@ add_subdirectory(3rdparty/googletest)
 
 include_directories(${gtest_SOURCE_DIR}/include/
                     3rdparty
-#                    ${CMAKE_SOURCE_DIR}
                     )
 enable_testing()
-SET(CMAKE_CXX_FLAGS_DEBUG "-g -Wno-unused-parameter")
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -Wall")
 add_executable(weather_test weather.cpp location.cpp GetTime.cpp test/weather_test.cpp test/FileReaderTest.cpp)
 target_link_libraries(weather_test gtest cpprestsdk::cpprest fmt)
 add_test(NAME weather COMMAND weather_test)
