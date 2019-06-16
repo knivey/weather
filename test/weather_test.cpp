@@ -44,10 +44,10 @@ class weatherTest : public testing::Test {
 };
 
 TEST_F(weatherTest, TestSummary) {
-    Location l;
-    l.lat = "1";
-    l.lon = "2";
-    l.name = "TestName";
+    std::shared_ptr<Location> l = make_shared<Location>("key");
+    l->lat = "1";
+    l->lon = "2";
+    l->name = "TestName";
     weather->Lookup(l);
     //cout << weather->GetIRC() << endl;
 

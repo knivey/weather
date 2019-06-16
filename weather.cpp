@@ -66,7 +66,7 @@ void Weather::CurCond() {
     out["cloudCover"] = format("{}%", int(cur["cloudCover"].get<double>() * 100));
 }
 
-void Weather::Lookup(Location loc) {
+void Weather::Lookup(std::shared_ptr<Location> loc) {
     Lookup(loc, "auto");
 }
 
@@ -74,16 +74,16 @@ bool Weather::ValidUnits(string units) {
     return (units == "auto" || UNITS.count(units) > 0);
 }
 
-void Weather::Lookup(Location loc, string units) {
+void Weather::Lookup(std::shared_ptr<Location> loc, string units) {
     if (!ValidUnits(units)) {
         error = ("Invalid units");
         return;
     };
-    out["name"] = loc.name;
+    out["name"] = loc->name;
 
     web::uri_builder b;
     b.append_path(key);
-    b.append_path(format("{},{}", loc.lat, loc.lon));
+    b.append_path(format("{},{}", loc->lat, loc->lon));
     b.append_query("exclude", "minutely,hourly");
     b.append_query("units", units);
     bool err;

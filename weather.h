@@ -2,6 +2,7 @@
 #define WEATHER_H
 
 #include <string>
+#include <memory>
 #include "nlohmann/json.hpp"
 #include "location.h"
 
@@ -12,13 +13,13 @@ public:
     std::string GetIRC();
     Weather ( std::string key );
     static bool ValidUnits ( std::string units );
-    void Lookup ( Location loc );
-    void Lookup ( Location loc, std::string units );
+    void Lookup ( std::shared_ptr<Location> loc );
+    void Lookup ( std::shared_ptr<Location> loc, std::string units );
 
 private:
     static const std::string URL;
     std::string key;
-    Location loc;
+    std::shared_ptr<Location> loc;
     std::string timezone;
     nlohmann::json w;
     nlohmann::json out;

@@ -42,6 +42,7 @@ constexpr std::string_view EXTNAME = "weather";
 constexpr std::string_view NETNAME = "zkpq";
 
 static std::string DARKSKY_KEY;
+static std::string BING_KEY;
 
 class ExtClient {
 public:
@@ -137,14 +138,15 @@ public:
             std::cout << "Cmd: " << cer.name() << " Chan: " << chan << " Args: " << q << std::endl;
             if (name == "wz" || name == "weather") {
                 std::string units = GetUnits(q);
-                std::cout << "Units: " << units << "Location: " << q << std::endl;
+                std::cout << "Units: " << units << " Location: " << q << std::endl;
                 if(q == "") {
                     putchan(chan, "Give a location");
                     continue;
                 }
-                auto loc = Location(q);
-                if (loc.error != "") {
-                    putchan(chan, loc.error);
+                auto loc = std::make_shared<Location>(BING_KEY);
+                loc->Lookup(q);
+                if (loc->error != "") {
+                    putchan(chan, loc->error);
                     continue;
                 }
                 auto w = Weather(DARKSKY_KEY);
@@ -175,6 +177,7 @@ int main() {
 
     try {
         DARKSKY_KEY = FileReader("darksky_key").data();
+        BING_KEY = FileReader("bing_key").data();
         credOpts.pem_root_certs = FileReader("extra.crt").data();
         credOpts.pem_private_key = FileReader("knivey.key").data();
         credOpts.pem_cert_chain = FileReader("knivey.crt").data();
@@ -184,6 +187,7 @@ int main() {
     }
 
     boost::trim_right(DARKSKY_KEY);
+    boost::trim_right(BING_KEY);
     boost::trim_right(credOpts.pem_root_certs);
     boost::trim_right(credOpts.pem_private_key);
     boost::trim_right(credOpts.pem_cert_chain);

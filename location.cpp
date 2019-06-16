@@ -15,7 +15,7 @@ using json = nlohmann::json;
 static const char *BINGLOC_URL = "http://dev.virtualearth.net/REST/v1/Locations/";
 static const char *BINGLOC_KEY = "AkPlNsEy3tq4KHRJpm-jBoBBZdqTuHRyFFJeTiklmqqGJ5Ntvk88kTxKLapHHQd4";
 
-void Location::Lookup(string query) {
+void Location::Lookup(std::string query) {
     web::uri_builder b;
     b.append_query("key", BINGLOC_KEY);
     b.append_query("query", query);
@@ -52,6 +52,6 @@ void Location::Lookup(string query) {
     }
 }
 
-Location::Location(string query) {
-    Lookup(query);
+Location::Location(std::string key) : key(key) {
+    ;
 }

@@ -12,10 +12,10 @@ public:
     double dlat;
     double dlon;
     std::string name;
+    std::string key;
 
-    Location ( std::string query );
-    Location() {;}
-    void Lookup ( std::string query );
+    Location (std::string key);
+    void Lookup (std::string query);
 };
 
 #endif // LOCATION_H
