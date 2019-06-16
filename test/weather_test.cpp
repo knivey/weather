@@ -1,12 +1,12 @@
-#include "location.h"
-#include "weather.h"
+#include "../location.h"
+#include "../weather.h"
 #include "gtest/gtest.h"
 #include <cpprest/http_client.h>
 #include <cpprest/uri_builder.h>
 #include <fstream>
 #include <memory>
 
-#include "FetchURL.h"
+#include "../FetchURL.h"
 
 using namespace std;
 using namespace web::http;
@@ -19,8 +19,6 @@ tuple<bool, string> FetchURL(string url, uri_builder builder) {
     return {false, wdata};
 }
 
-static const char *DARKSKY_KEY = "3e0b34c68d70bef67e1e843840139d6c";
-
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
@@ -30,7 +28,7 @@ class weatherTest : public testing::Test {
   protected:
     unique_ptr<Weather> weather;
     weatherTest() {
-        weather = make_unique<Weather>(DARKSKY_KEY);
+        weather = make_unique<Weather>("key");
     }
 
     virtual ~weatherTest() {
@@ -38,7 +36,7 @@ class weatherTest : public testing::Test {
 
     virtual void SetUp() override {
         wdata.clear();
-        std::ifstream i("barf.json");
+        std::ifstream i("../test/input/weather.json");
         std::stringstream buffer;
         buffer << i.rdbuf();
         wdata = buffer.str();
