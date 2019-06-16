@@ -16,10 +16,11 @@ file(COPY ${CMAKE_SOURCE_DIR}/keys/extra.crt DESTINATION ${CMAKE_CURRENT_BINARY_
 file(COPY ${CMAKE_SOURCE_DIR}/keys/darksky_key DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_SOURCE_DIR}/keys/bing_key DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_subdirectory(googletest)
+add_subdirectory(3rdparty/googletest)
 
 include_directories(${gtest_SOURCE_DIR}/include/
-                    ../
+                    3rdparty
+#                    ${CMAKE_SOURCE_DIR}
                     )
 enable_testing()
 SET(CMAKE_CXX_FLAGS_DEBUG "-g -Wno-unused-parameter")
