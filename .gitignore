@@ -1,3 +1,4 @@
 keys/*
 build/*
 .kdev4
+*.kdev4
