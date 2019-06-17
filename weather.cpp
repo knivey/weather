@@ -70,8 +70,8 @@ void Weather::Lookup(std::shared_ptr<Location> loc) {
     Lookup(loc, "auto");
 }
 
-bool Weather::ValidUnits(string units) {
-    return (units == "auto" || UNITS.count(units) > 0);
+bool Weather::ValidUnits(const std::string_view units) {
+    return (units == "auto" || UNITS.count(units.data()) > 0);
 }
 
 void Weather::Lookup(std::shared_ptr<Location> loc, string units) {

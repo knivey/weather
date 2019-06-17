@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <fstream>
 #include <memory>
 #include <sstream>
@@ -101,15 +102,15 @@ public:
         }
     }
     
-    std::string GetUnits(std::string &q) {
+    std::string ExtractUnits(std::string &q) {
         std::string units = "auto";
         std::string out = "";
         std::vector<std::string> words;
         boost::split(words, q, boost::is_space());
-        for(std::string word : words) {
+        for(std::string_view word : words) {
             if (word.substr(0, 2) == "--") {
-                std::string unit = word.substr(2, std::string::npos);
-                if (Weather::ValidUnits(units)) {
+                std::string_view unit = word.substr(2, std::string::npos);
+                if (Weather::ValidUnits(unit)) {
                     units = unit;
                     continue;
                 }
@@ -137,7 +138,7 @@ public:
             auto q = args["location"];
             std::cout << "Cmd: " << cer.name() << " Chan: " << chan << " Args: " << q << std::endl;
             if (name == "wz" || name == "weather") {
-                std::string units = GetUnits(q);
+                std::string units = ExtractUnits(q);
                 std::cout << "Units: " << units << " Location: " << q << std::endl;
                 if(q == "") {
                     putchan(chan, "Give a location");
