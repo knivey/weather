@@ -9,13 +9,10 @@
 #include "../FetchURL.hpp"
 #include <nlohmann/json.hpp>
 
-using namespace std;
-using namespace web::http;
-using namespace web::http::client;
-
 //Our json test data;
-string wdata;
-tuple<bool, string> FetchURL(string url, uri_builder builder) {
+std::string wdata;
+std::tuple<bool, std::string> FetchURL(std::string url, web::uri_builder builder) {
+    (void)builder; //Silence unused parameter
     return {false, wdata};
 }
 
@@ -26,9 +23,9 @@ int main(int argc, char **argv) {
 
 class weatherTest : public testing::Test {
   protected:
-    unique_ptr<Weather> weather;
+    std::unique_ptr<Weather> weather;
     weatherTest() {
-        weather = make_unique<Weather>("key");
+        weather = std::make_unique<Weather>("key");
     }
 
     virtual ~weatherTest() {
@@ -44,7 +41,7 @@ class weatherTest : public testing::Test {
 };
 
 TEST_F(weatherTest, TestSummary) {
-    std::shared_ptr<Location> l = make_shared<Location>("key");
+    std::shared_ptr<Location> l = std::make_shared<Location>("key");
     l->lat = "1";
     l->lon = "2";
     l->name = "TestName";

@@ -8,10 +8,6 @@
 #include <iostream>
 #include <tuple>
 
-using namespace fmt;
-using namespace std;
-using json = nlohmann::json;
-
 static const char *BINGLOC_URL = "http://dev.virtualearth.net/REST/v1/Locations/";
 
 void Location::Lookup(std::string query) {
@@ -19,23 +15,23 @@ void Location::Lookup(std::string query) {
     b.append_query("key", key);
     b.append_query("query", query);
     bool err;
-    string body;
-    tie(err, body) = FetchURL(BINGLOC_URL, b);
+    std::string body;
+    std::tie(err, body) = FetchURL(BINGLOC_URL, b);
     if (err) {
-        this->error = format("Weather location lookup HTTP Error: {}", body);
+        this->error = fmt::format("Weather location lookup HTTP Error: {}", body);
         return;
     }
 
     try {
-        auto j = json::parse(body);
+        auto j = nlohmann::json::parse(body);
         if (j["statusCode"] != 200) {
-            this->error = format("Weather location service recieved an error");
-            cout << j.dump(4) << endl;
+            this->error = fmt::format("Weather location service recieved an error");
+            std::cout << j.dump(4) << std::endl;
             return;
         }
         auto rs = j["resourceSets"][0];
         if (rs["resources"].size() < 1) {
-            this->error = format("Weather location not found");
+            this->error = fmt::format("Weather location not found");
             return;
         }
         auto r = rs["resources"][0];
@@ -43,10 +39,11 @@ void Location::Lookup(std::string query) {
         auto c = r["point"]["coordinates"];
         this->dlat = c[0].get<double>();
         this->dlon = c[1].get<double>();
-        this->lat = boost::lexical_cast<string>(this->dlat);
-        this->lon = boost::lexical_cast<string>(this->dlon);
+        // I use lexical_cast and not fmt here because fmt cuts the decimal precision
+        this->lat = boost::lexical_cast<std::string>(this->dlat);
+        this->lon = boost::lexical_cast<std::string>(this->dlon);
     } catch (const std::exception &e) {
-        this->error = format("Weather JSON Error exception: {}", e.what());
+        this->error = fmt::format("Weather JSON Error exception: {}", e.what());
         return;
     }
 }

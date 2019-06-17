@@ -4,10 +4,8 @@
 #include <string.h>
 #include <time.h>
 
-using namespace std;
-
 // TODO add locks to make thread safe, until then YOLO!
-string GetTime(string format, string input, string timezone) {
+std::string GetTime(std::string format, std::string input, std::string timezone) {
     char buf[256];
     struct tm t;
     memset(&t, 0, sizeof(struct tm));
@@ -15,10 +13,10 @@ string GetTime(string format, string input, string timezone) {
     tzset();
     strptime(input.c_str(), "%s", &t);
     strftime(buf, 255, format.c_str(), &t);
-    return string(buf);
+    return std::string(buf);
 }
 
-string GetTime(string format, long input, string timezone) {
+std::string GetTime(std::string format, long input, std::string timezone) {
     char buf[256];
     struct tm t;
     memset(&t, 0, sizeof(struct tm));
@@ -26,5 +24,5 @@ string GetTime(string format, long input, string timezone) {
     tzset();
     localtime_r(&input, &t);
     strftime(buf, 255, format.c_str(), &t);
-    return string(buf);
+    return std::string(buf);
 }
