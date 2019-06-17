@@ -1,4 +1,4 @@
-#include "GetTime.h"
+#include "GetTime.hpp"
 #include <iosfwd>
 #include <stdlib.h>
 #include <string.h>

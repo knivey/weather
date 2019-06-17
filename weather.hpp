@@ -5,7 +5,7 @@
 #include <string_view>
 #include <memory>
 #include "nlohmann/json.hpp"
-#include "location.h"
+#include "location.hpp"
 
 class Weather
 {

@@ -1,7 +1,7 @@
-#include "FetchURL.h"
+#include "FetchURL.hpp"
 #include "inja.hpp"
-#include "location.h"
-#include "weather.h"
+#include "location.hpp"
+#include "weather.hpp"
 #include <cpprest/http_client.h>
 #include <cpprest/uri_builder.h>
 #include <fmt/core.h>
@@ -9,7 +9,7 @@
 #include <map>
 #include <tuple>
 
-#include "GetTime.h"
+#include "GetTime.hpp"
 
 /*
  * TODO catch specific exception types for better error output

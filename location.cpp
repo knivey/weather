@@ -1,5 +1,5 @@
-#include "FetchURL.h"
-#include "location.h"
+#include "FetchURL.hpp"
+#include "location.hpp"
 #include "nlohmann/json.hpp"
 
 #include <boost/lexical_cast.hpp>

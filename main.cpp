@@ -1,6 +1,6 @@
 #include "FileReader.hpp"
-#include "location.h"
-#include "weather.h"
+#include "location.hpp"
+#include "weather.hpp"
 
 #include <fmt/core.h>
 
