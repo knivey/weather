@@ -16,6 +16,7 @@ public:
     static bool ValidUnits(const std::string_view units);
     void Lookup(std::shared_ptr<Location> loc);
     void Lookup(std::shared_ptr<Location> loc, std::string units);
+    std::string Render(const std::string_view tmpl);
 
 private:
     static const std::string URL;

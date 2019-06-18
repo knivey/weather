@@ -19,7 +19,7 @@ TEST_F(FileReaderTest, TestReadingSnekFile)
     FileReader reader("../test/input/snek.txt");
 
     ASSERT_EQ("hsssss ~~~~~:>~\n", reader.data());
-    ASSERT_EQ(16, reader.size());
+    ASSERT_EQ(16u, reader.size());
 }
 
 TEST_F(FileReaderTest, TestOpeningFileThatDoesNotExist)
