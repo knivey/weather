@@ -2,7 +2,6 @@
 #include "location.hpp"
 #include "nlohmann/json.hpp"
 
-#include <boost/lexical_cast.hpp>
 #include <cpprest/uri_builder.h>
 #include <fmt/core.h>
 #include <iostream>
@@ -37,11 +36,10 @@ void Location::Lookup(std::string query) {
         auto r = rs["resources"][0];
         r["address"]["formattedAddress"].get_to(this->name);
         auto c = r["point"]["coordinates"];
-        this->dlat = c[0].get<double>();
-        this->dlon = c[1].get<double>();
-        // I use lexical_cast and not fmt here because fmt cuts the decimal precision
-        this->lat = boost::lexical_cast<std::string>(this->dlat);
-        this->lon = boost::lexical_cast<std::string>(this->dlon);
+        this->dlat = c[0].get<long double>();
+        this->dlon = c[1].get<long double>();
+        this->lat = fmt::format("{:.18f}", this->dlat);
+        this->lon = fmt::format("{:.18f}", this->dlon);
     } catch (const std::exception &e) {
         this->error = fmt::format("Weather JSON Error exception: {}", e.what());
         return;

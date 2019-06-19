@@ -9,8 +9,8 @@ public:
     std::string error;
     std::string lat;
     std::string lon;
-    double dlat;
-    double dlon;
+    long double dlat;
+    long double dlon;
     std::string name;
     std::string key;
 
