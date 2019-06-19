@@ -16,7 +16,7 @@
  */
 
 
-#define CONDFMT "{{cond}} {{temp}}{% if exists(\"fltemp\") %} (Feels Like {{fltemp}}){% endif %}, Cloud Cover: {{cloudCover}}, Humidity: {{humidity}}, Wind: {{windDir}} @ {{windSpeed}}{% if exists(\"windGust\") %} ({{windGust}} Gusts){% endif %}"
+#define CONDFMT "{{cond}} {{temp}}{% if has_fltemp %} (Feels Like {{fltemp}}){% endif %}, Cloud Cover: {{cloudCover}}, Humidity: {{humidity}}, Wind: {{windDir}} @ {{windSpeed}}{% if exists(\"windGust\") %} ({{windGust}} Gusts){% endif %} Sunrise: {{sunrise}} Sunset: {{sunset}}"
 
 const std::string Weather::URL = "https://api.darksky.net/forecast/";
 
@@ -62,6 +62,12 @@ void Weather::CurCond() {
     out["humidity"] = fmt::format("{}%", int(cur["humidity"].get<double>() * 100));
     //cloudcover
     out["cloudCover"] = fmt::format("{}%", int(cur["cloudCover"].get<double>() * 100));
+    
+    //sun info
+    w["timezone"].get_to(timezone);
+    auto todaysFC = w["daily"]["data"][0];
+    out["sunrise"] = GetTime("%l:%M %P", todaysFC["sunriseTime"].get<long>(), timezone);
+    out["sunset"] = GetTime("%l:%M %P", todaysFC["sunsetTime"].get<long>(), timezone);
 }
 
 void Weather::Lookup(std::shared_ptr<Location> loc) {
@@ -93,7 +99,6 @@ void Weather::Lookup(std::shared_ptr<Location> loc, std::string units) {
     }
     try {
         w = nlohmann::json::parse(body);
-        w["timezone"].get_to(timezone);
         if (!w["error"].is_null()) {
             error = fmt::format("Weather Darksky Error: {}", w["error"].get<std::string>());
             return;

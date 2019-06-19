@@ -24,6 +24,6 @@ include_directories(${gtest_SOURCE_DIR}/include/
                     )
 enable_testing()
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -Wall")
-add_executable(tests weather.cpp location.cpp GetTime.cpp test/weather_test.cpp test/FileReaderTest.cpp)
+add_executable(tests weather.cpp location.cpp GetTime.cpp test/weather_test.cpp test/FileReaderTest.cpp test/GetTimeTest.cpp)
 target_link_libraries(tests gtest cpprestsdk::cpprest fmt)
 add_test(NAME weather COMMAND weather_test)
