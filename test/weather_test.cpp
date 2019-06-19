@@ -138,6 +138,11 @@ TEST_F(weatherTest, TestSuninfo) {
     weather->Lookup(loc);
     ASSERT_EQ(weather->Render("{{sunrise}}"), "11:35 am");
     ASSERT_EQ(weather->Render("{{sunset}}"), "11:56 pm");
+    j["timezone"] = "EST";
+    wdata = j.dump();
+    weather->Lookup(loc);
+    ASSERT_EQ(weather->Render("{{sunrise}}"), "6:35 am");
+    ASSERT_EQ(weather->Render("{{sunset}}"), "6:56 pm");
 }
 
 

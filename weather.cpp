@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include <tuple>
+#include <boost/algorithm/string.hpp>
 
 #include "GetTime.hpp"
 
@@ -66,8 +67,8 @@ void Weather::CurCond() {
     //sun info
     w["timezone"].get_to(timezone);
     auto todaysFC = w["daily"]["data"][0];
-    out["sunrise"] = GetTime("%l:%M %P", todaysFC["sunriseTime"].get<long>(), timezone);
-    out["sunset"] = GetTime("%l:%M %P", todaysFC["sunsetTime"].get<long>(), timezone);
+    out["sunrise"] = boost::trim_left_copy(GetTime("%l:%M %P", todaysFC["sunriseTime"].get<long>(), timezone));
+    out["sunset"] = boost::trim_left_copy(GetTime("%l:%M %P", todaysFC["sunsetTime"].get<long>(), timezone));
 }
 
 void Weather::Lookup(std::shared_ptr<Location> loc) {
