@@ -136,18 +136,18 @@ TEST_F(weatherTest, TestFeelsTempMissing) {
 
 TEST_F(weatherTest, TestSuninfo) {
     weather->Lookup(loc);
-    ASSERT_EQ(weather->Render("{{sunrise}}"), "11:35 am");
-    ASSERT_EQ(weather->Render("{{sunset}}"), "11:56 pm");
+    ASSERT_EQ(weather->Render("{{sunrise}}"), "11:35am");
+    ASSERT_EQ(weather->Render("{{sunset}}"), "11:56pm");
     j["timezone"] = "EST";
     wdata = j.dump();
     weather->Lookup(loc);
-    ASSERT_EQ(weather->Render("{{sunrise}}"), "6:35 am");
-    ASSERT_EQ(weather->Render("{{sunset}}"), "6:56 pm");
+    ASSERT_EQ(weather->Render("{{sunrise}}"), "6:35am");
+    ASSERT_EQ(weather->Render("{{sunset}}"), "6:56pm");
 }
 
 
 
 TEST_F(weatherTest, TestGetIRC) {
     weather->Lookup(loc);
-    ASSERT_EQ(weather->GetIRC(), "(LocName) Currently Clear 34.6\u00b0" "F (Feels Like 31.2\u00b0" "F), Cloud Cover: 0%, Humidity: 53%, Wind: N @ 3.9 mph (5.7 mph Gusts) Sunrise: 11:35 am Sunset: 11:56 pm");
+    ASSERT_EQ(weather->GetIRC(), "(LocName) Currently Clear 34.6\u00b0" "F (Feels Like 31.2\u00b0" "F), Cloud Cover: 0%, Humidity: 53%, Wind: N @ 3.9 mph (5.7 mph Gusts) Daylight: 11:35am to 11:56pm");
 }

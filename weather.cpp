@@ -17,7 +17,7 @@
  */
 
 
-#define CONDFMT "{{cond}} {{temp}}{% if has_fltemp %} (Feels Like {{fltemp}}){% endif %}, Cloud Cover: {{cloudCover}}, Humidity: {{humidity}}, Wind: {{windDir}} @ {{windSpeed}}{% if exists(\"windGust\") %} ({{windGust}} Gusts){% endif %} Sunrise: {{sunrise}} Sunset: {{sunset}}"
+#define CONDFMT "{{cond}} {{temp}}{% if has_fltemp %} (Feels Like {{fltemp}}){% endif %}, Cloud Cover: {{cloudCover}}, Humidity: {{humidity}}, Wind: {{windDir}} @ {{windSpeed}}{% if exists(\"windGust\") %} ({{windGust}} Gusts){% endif %} Daylight: {{sunrise}} to {{sunset}}"
 
 const std::string Weather::URL = "https://api.darksky.net/forecast/";
 
@@ -67,8 +67,8 @@ void Weather::CurCond() {
     //sun info
     w["timezone"].get_to(timezone);
     auto todaysFC = w["daily"]["data"][0];
-    out["sunrise"] = boost::trim_left_copy(GetTime("%l:%M %P", todaysFC["sunriseTime"].get<long>(), timezone));
-    out["sunset"] = boost::trim_left_copy(GetTime("%l:%M %P", todaysFC["sunsetTime"].get<long>(), timezone));
+    out["sunrise"] = boost::trim_left_copy(GetTime("%l:%M%P", todaysFC["sunriseTime"].get<long>(), timezone));
+    out["sunset"] = boost::trim_left_copy(GetTime("%l:%M%P", todaysFC["sunsetTime"].get<long>(), timezone));
 }
 
 void Weather::Lookup(std::shared_ptr<Location> loc) {
