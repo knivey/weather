@@ -27,11 +27,17 @@ Weather::Weather(std::string key) : key(key) {
 
 static const char *DIRS[] = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
 
-static std::map<std::string, std::map<std::string, std::string>> UNITS{
-    {"us", {{"temp", "\u00b0F"}, {"windSpeed", "mph"}}},
-    {"ca", {{"temp", "\u00b0C"}, {"windSpeed", "kph"}}},
-    {"si", {{"temp", "\u00b0C"}, {"windSpeed", "m/s"}}},
-    {"uk2", {{"temp", "\u00b0C"}, {"windSpeed", "mph"}}}};
+struct Units {
+    const std::string_view temp;
+    const std::string_view windSpeed;
+};
+
+static std::map<const std::string_view, const Units> UNITS {
+    {"us", {"\u00b0F", "mph"}},
+    {"ca", {"\u00b0C", "kph"}},
+    {"si", {"\u00b0C", "m/s"}},
+    {"uk2", {"\u00b0C", "mph"}}
+};
 
 void Weather::CurCond() {
     std::string units = w["flags"]["units"].get<std::string>();
@@ -45,17 +51,17 @@ void Weather::CurCond() {
         out["windDir"] = DIRS[(int)(((cur["windBearing"].get<int>() % 360) - 22.5) / 45)];
     }
     //windSpeed
-    out["windSpeed"] = fmt::format("{:.1f} {}", cur["windSpeed"].get<double>(), UNITS[units]["windSpeed"]);
+    out["windSpeed"] = fmt::format("{:.1f} {}", cur["windSpeed"].get<double>(), UNITS[units].windSpeed);
     //windGust
     if (!cur["windGust"].is_null()) {
-        out["windGust"] = fmt::format("{:.1f} {}", cur["windGust"].get<double>(), UNITS[units]["windSpeed"]);
+        out["windGust"] = fmt::format("{:.1f} {}", cur["windGust"].get<double>(), UNITS[units].windSpeed);
     }
     //temp
-    out["temp"] = fmt::format("{:.1f}{}", cur["temperature"].get<double>(), UNITS[units]["temp"]);
+    out["temp"] = fmt::format("{:.1f}{}", cur["temperature"].get<double>(), UNITS[units].temp);
     //fltemp
     out["has_fltemp"] = false;
     if (!cur["apparentTemperature"].is_null() && cur["apparentTemperature"] != cur["temperature"]) {
-        out["fltemp"] = fmt::format("{:.1f}{}", cur["apparentTemperature"].get<double>(), UNITS[units]["temp"]);
+        out["fltemp"] = fmt::format("{:.1f}{}", cur["apparentTemperature"].get<double>(), UNITS[units].temp);
         out["has_fltemp"] = true;
     }
     // Percent type is fucked, plus I dont need floating percents
